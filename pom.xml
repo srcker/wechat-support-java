@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.srcker.wechat</groupId>
+	<artifactId>support</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<name>Archetype - support</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<projectUrl>https://github.com/srcker/wechat-support-java.git</projectUrl>
+	</properties>
+
+	<!-- 授权协议 -->
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>sinda</name>
+			<email>sinda@srcker.com</email>
+			<url>${projectUrl}</url>
+		</developer>
+	</developers>
+
+	<scm>
+		<!-- 采用projectUrl变量代替这个值，方便给重复利用这个配置，也就是上面的标签替换一下值就行 -->
+		<connection>${projectUrl}</connection>
+		<developerConnection>${projectUrl}</developerConnection>
+		<url>${projectUrl}</url>
+	</scm>
+
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+			<version>1.18.16</version>
+		</dependency>
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>5.8.21</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.13</version>
+		</dependency>
+	</dependencies>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus Snapshots</name>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name>Nexus Release Repository</name>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!--公钥私钥插件，也就是上传需要进行验证用户名和密码过程中需要用到的插件-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!--部署插件-->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>${serverId}</serverId>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/java</directory>
+						<includes>
+							<include>**/*.properties</include>
+						</includes>
+					</resource>
+				</resources>
+				<plugins>
+					<!-- Source -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.2.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- GPG -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!--Compiler -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.4</version>
+						<configuration>
+							<source>1.8</source>
+							<target>1.8</target>
+							<fork>true</fork>
+							<verbose>true</verbose>
+							<encoding>UTF-8</encoding>
+							<showWarnings>false</showWarnings>
+						</configuration>
+					</plugin>
+					<!--Release -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<version>2.5.3</version>
+						<configuration>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<useReleaseProfile>false</useReleaseProfile>
+							<releaseProfiles>release</releaseProfiles>
+							<goals>deploy</goals>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+
+		</profile>
+	</profiles>
+
+
+
+
+
+
+</project>
