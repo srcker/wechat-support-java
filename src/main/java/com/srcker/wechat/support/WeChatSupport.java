@@ -21,33 +21,37 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 
+@Getter
 public class WeChatSupport {
 
-    private final String request;
+    @Setter
+    private String key;
 
-    @Getter
+    @Setter
+    private String token;
+
+    @Setter
+    private String appid;
+
+    private String request;
+
     @Setter
     protected WeChatRequest wechatRequest;
 
-    @Getter
     @Setter
     protected WeChatResponse wechatResponse;
 
 
-    /**
-     * 构建微信处理
-     * @param request   微信服务发过来的http请求
-     */
-    public WeChatSupport(String request){
-        this.request = request;
+    public WeChatSupport(){
         this.wechatRequest = new WeChatRequest();
         this.wechatResponse = new WeChatResponse();
-        this.setData();
     }
 
 
+    public WeChatSupport setRequest(String request) {
 
-    private void setData() {
+        this.request = request;
+
         // 获取文档
         Document document = XmlUtil.parseXml(this.request);
         // 获取根节点
@@ -58,6 +62,7 @@ public class WeChatSupport {
         this.decrypt();
         // 分发数据
         this.dispatch();
+        return this;
     }
 
 
@@ -68,7 +73,7 @@ public class WeChatSupport {
 
     private void decrypt(){
 
-        byte[] aesKey = Base64.decodeBase64("BphNgvEUk0UQ1XVZmKU7RyFmtWf8UEXNArjHFxS9T4h=");
+        byte[] aesKey = Base64.decodeBase64(key + "=");
 
         try{
             Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
@@ -106,7 +111,7 @@ public class WeChatSupport {
 
 
     static byte[] decode(byte[] decrypted) {
-        int pad = decrypted[decrypted.length - 1];
+        int pad = (int) decrypted[decrypted.length - 1];
         if (pad < 1 || pad > 32) {
             pad = 0;
         }
